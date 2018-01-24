@@ -53,4 +53,9 @@ setup(
     ],
     test_suite='tests',
     tests_require=requirements + ['nose'],
+    extras_require={
+        'psycopg2': [
+            'psycopg2',
+        ],
+    },
 )
