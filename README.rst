@@ -24,8 +24,8 @@
     :target: https://doc.anyblok-postgres.anyblok.org/?badge=latest
 
 
-AnyBlok / Dramatiq
-==================
+AnyBlok / PostgreSQL
+====================
 
 Improve AnyBlok `AnyBlok <http://doc.anyblok.org>`_ to add postgres and report
 system.
