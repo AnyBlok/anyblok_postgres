@@ -12,3 +12,16 @@ Fields
 ======
 
 Add some field only for postgres
+
+Columns
+-------
+
+.. automodule:: anyblok_postgres.column
+
+**Jsonb**
+`````````
+
+.. autoclass:: Jsonb
+    :noindex:
+    :members:
+    :show-inheritance:
