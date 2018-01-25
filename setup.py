@@ -7,20 +7,20 @@
 # v. 2.0. If a copy of the MPL was not distributed with this file,You can
 # obtain one at http://mozilla.org/MPL/2.0/.
 from setuptools import setup, find_packages
-# import os
+import os
 
-version = '1.0.0'
+version = '0.1.0'
 
-# here = os.path.abspath(os.path.dirname(__file__))
-#
-# with open(os.path.join(here, 'README.rst'), 'r',
-#           encoding='utf-8') as readme_file:
-#     readme = readme_file.read()
-#
-# with open(
-#     os.path.join(here, 'doc', 'CHANGES.rst'), 'r', encoding='utf-8'
-# ) as change:
-#     CHANGES = change.read()
+here = os.path.abspath(os.path.dirname(__file__))
+
+with open(os.path.join(here, 'README.rst'), 'r',
+          encoding='utf-8') as readme_file:
+    readme = readme_file.read()
+
+with open(
+    os.path.join(here, 'doc', 'CHANGES.rst'), 'r', encoding='utf-8'
+) as change:
+    CHANGES = change.read()
 
 requirements = [
     'anyblok',
@@ -30,7 +30,7 @@ setup(
     name='anyblok_postgres',
     version=version,
     description="Versionned attachment for AnyBlok",
-    # long_description=readme + '\n' + CHANGES,
+    long_description=readme + '\n' + CHANGES,
     author="jssuzanne",
     author_email='jssuzanne@anybox.fr',
     url="http://docs.anyblok-postgres.anyblok.org/%s" % version,
