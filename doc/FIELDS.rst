@@ -25,3 +25,11 @@ Columns
     :noindex:
     :members:
     :show-inheritance:
+
+**LargeObject**
+```````````````
+
+.. autoclass:: LargeObject
+    :noindex:
+    :members:
+    :show-inheritance:

@@ -11,8 +11,8 @@
 CHANGELOG
 =========
 
-0.1.0
------
+0.1.0 (2018-01-26)
+------------------
 
 * [ADD] **Jsonb** column
 * [ADD] **LargeObject** column
