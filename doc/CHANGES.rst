@@ -15,3 +15,4 @@ CHANGELOG
 -----
 
 * [ADD] **Jsonb** column
+* [ADD] **LargeObject** column

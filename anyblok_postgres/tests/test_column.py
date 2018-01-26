@@ -7,7 +7,8 @@
 # obtain one at http://mozilla.org/MPL/2.0/.
 from anyblok.tests.testcase import DBTestCase
 from anyblok.tests.test_column import simple_column
-from anyblok_postgres.column import Jsonb
+from anyblok_postgres.column import Jsonb, LargeObject
+from os import urandom
 
 
 class TestColumns(DBTestCase):
@@ -41,3 +42,18 @@ class TestColumns(DBTestCase):
         Test.insert(col={'a': 'test'})
         self.assertEqual(Test.query().filter(Test.col.is_(None)).count(), 2)
         self.assertEqual(Test.query().filter(Test.col.isnot(None)).count(), 1)
+
+    def test_large_object(self):
+        registry = self.init_registry(simple_column, ColumnType=LargeObject)
+        hugefile = urandom(1000)
+        test = registry.Test.insert(col=hugefile)
+        self.assertEqual(test.col, hugefile)
+        oid1 = registry.execute('select col from test').fetchone()[0]
+        self.assertNotEqual(oid1, hugefile)
+        hugefile2 = urandom(1000)
+        test.col = hugefile2
+        registry.flush()
+        self.assertNotEqual(test.col, hugefile)
+        self.assertEqual(test.col, hugefile2)
+        oid2 = registry.execute('select col from test').fetchone()[0]
+        self.assertEqual(oid1, oid2)
