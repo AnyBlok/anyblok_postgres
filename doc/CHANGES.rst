@@ -11,6 +11,12 @@
 CHANGELOG
 =========
 
+0.1.1
+-----
+
+* [FIX] when the model have more than one primary key,
+  the query to get the old value was wrong
+
 0.1.0 (2018-01-26)
 ------------------
 

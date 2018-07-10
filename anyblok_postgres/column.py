@@ -6,7 +6,7 @@
 # v. 2.0. If a copy of the MPL was not distributed with this file,You can
 # obtain one at http://mozilla.org/MPL/2.0/.
 from sqlalchemy.dialects.postgresql import JSONB, OID
-from sqlalchemy import select
+from sqlalchemy import select, and_
 from anyblok.column import Column
 from anyblok.common import anyblok_column_prefix
 
@@ -68,8 +68,13 @@ class LargeObject(Column):
             table = model_self.__table__.c
             dbfname = self.db_column_name or fieldname
             query = select([getattr(table, dbfname)])
-            query = query.where(
-                *[getattr(table, x) == y for x, y in pks.items()])
+            where_clause = [getattr(table, x) == y for x, y in pks.items()]
+            if len(where_clause) == 1:
+                where_clause = where_clause[0]
+            else:
+                where_clause = and_(*where_clause)
+
+            query = query.where(where_clause)
             oldvalue = model_self.registry.execute(query).fetchone()
             if oldvalue:
                 oldvalue = oldvalue[0]
