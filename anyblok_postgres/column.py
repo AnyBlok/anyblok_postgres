@@ -54,6 +54,10 @@ class LargeObject(Column):
     """
     sqlalchemy_type = OID
 
+    def __init__(self, *args, **kwargs):
+        self.keep_blob = kwargs.pop('keep_blob', False)
+        super(LargeObject, self).__init__(*args, **kwargs)
+
     def wrap_setter_column(self, fieldname):
         attr_name = anyblok_column_prefix + fieldname
 
@@ -90,9 +94,19 @@ class LargeObject(Column):
     def setter_format_value(self, value, oldvalue, registry):
         if value is not None:
             cursor = registry.session.connection().connection.cursor()
-            lobj = cursor.connection.lobject(oldvalue or 0, 'wb')
+            oid = oldvalue or 0
+            if self.keep_blob:
+                oid = 0
+
+            lobj = cursor.connection.lobject(oid, 'wb')
             lobj.write(value)
             value = lobj.oid
+            cursor.close()
+        elif oldvalue and not self.keep_blob:
+            cursor = registry.session.connection().connection.cursor()
+            lobj = cursor.connection.lobject(oldvalue)
+            lobj.unlink()
+            cursor.close()
 
         return value
 
