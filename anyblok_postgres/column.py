@@ -7,7 +7,6 @@
 # v. 2.0. If a copy of the MPL was not distributed with this file,You can
 # obtain one at http://mozilla.org/MPL/2.0/.
 from sqlalchemy.dialects import postgresql as pg
-from sqlalchemy.dialects.postgresql import JSONB, OID
 from sqlalchemy import select, and_
 from anyblok.column import Column
 from anyblok.common import anyblok_column_prefix
@@ -16,7 +15,7 @@ json_null = object()
 
 
 class Jsonb(Column):
-    """Postgres JSONB column
+    """PostgreSQL JSONB column
 
     ::
 
@@ -30,7 +29,7 @@ class Jsonb(Column):
             x = Jsonb()
 
     """
-    sqlalchemy_type = JSONB(none_as_null=True)
+    sqlalchemy_type = pg.JSONB(none_as_null=True)
 
 
 class Int4Range(Column):
@@ -148,7 +147,7 @@ class TsTzRange(Column):
 
 
 class LargeObject(Column):
-    """Postgres JSONB column
+    """PostgreSQL JSONB column
 
     ::
 
@@ -168,7 +167,7 @@ class LargeObject(Column):
         test.x  # get the huge file
 
     """
-    sqlalchemy_type = OID
+    sqlalchemy_type = pg.OID
 
     def __init__(self, *args, **kwargs):
         self.keep_blob = kwargs.pop('keep_blob', False)
