@@ -11,6 +11,11 @@
 CHANGELOG
 =========
 
+0.2.0
+-----
+
+* [ADD] columns for built-in range types
+
 0.1.1
 -----
 

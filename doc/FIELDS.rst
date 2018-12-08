@@ -11,7 +11,7 @@
 Fields
 ======
 
-Add some field only for postgres
+This package adds some fields that are specific to PostgreSQL.
 
 Columns
 -------
@@ -32,4 +32,37 @@ Columns
 .. autoclass:: LargeObject
     :noindex:
     :members:
+    :show-inheritance:
+
+**Ranges**
+``````````
+
+Since version 9.2, PostgreSQL supports a flexible range types system,
+with a few predefined ones, that can be used within AnyBlok.
+
+.. seealso:: Range Types in `PostgreSQL documentation
+             <https://www.postgresql.org/docs/current/rangetypes.html>`_
+
+.. autoclass:: Int4Range
+    :noindex:
+    :show-inheritance:
+
+.. autoclass:: Int8Range
+    :noindex:
+    :show-inheritance:
+
+.. autoclass:: NumRange
+    :noindex:
+    :show-inheritance:
+
+.. autoclass:: DateRange
+    :noindex:
+    :show-inheritance:
+
+.. autoclass:: TsRange
+    :noindex:
+    :show-inheritance:
+
+.. autoclass:: TsTzRange
+    :noindex:
     :show-inheritance:
