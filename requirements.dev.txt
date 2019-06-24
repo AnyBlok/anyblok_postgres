@@ -1,0 +1,8 @@
+ipdb
+ipdbplugin
+ipython
+flake8
+coverage
+pysqlite3
+psycopg2
+-e .
