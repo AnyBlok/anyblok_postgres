@@ -9,33 +9,31 @@ from anyblok.model.factory import ViewFactory
 from anyblok.model.exceptions import ViewException
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.schema import DDLElement
-# from sqlalchemy import Table, MetaData
 from sqlalchemy.sql import table
 from sqlalchemy.orm import Query, mapper
 from anyblok.common import anyblok_column_prefix
 
 
 class CreateMaterializedView(DDLElement):
-    def __init__(self, name, selectable):
+    def __init__(self, name, selectable, with_data=None):
         self.name = name
         self.selectable = selectable
-
-
-class DropMaterializedView(DDLElement):
-    def __init__(self, name):
-        self.name = name
+        self.with_data = with_data
 
 
 @compiles(CreateMaterializedView)
 def compile(element, compiler, **kw):
-    return 'CREATE MATERIALIZED VIEW %s AS %s' % (
+    with_data = ''
+    if element.with_data is True:
+        with_data = ' WITH DATA'
+    elif element.with_data is False:
+        with_data = ' WITH NO DATA'
+
+    return 'CREATE MATERIALIZED VIEW IF NOT EXISTS %s AS %s%s' % (
         element.name,
-        compiler.sql_compiler.process(element.selectable, literal_binds=True))
-
-
-@compiles(DropMaterializedView)
-def compile_drop_materialized_view(element, compiler, **kw):
-    return "DROP MATERIALIZED VIEW IF EXISTS %s" % element.name
+        compiler.sql_compiler.process(element.selectable, literal_binds=True),
+        with_data
+    )
 
 
 class Refresh:
@@ -55,58 +53,6 @@ class MaterializedViewFactory(ViewFactory):
         bases.append(Refresh)
         super(MaterializedViewFactory, self).insert_core_bases(
             bases, properties)
-
-    # def build_model(self, modelname, bases, properties):
-    #     base = type(modelname, tuple(bases), {})
-    #     self.apply_view(base, properties)
-    #     return type(modelname, (base, self.registry.declarativebase),
-    #                 properties)
-
-    # def apply_view(self, base, properties):
-    #     """ Transform the sqlmodel to view model
-
-    #     :param base: Model cls
-    #     :param properties: properties of the model
-    #     :exception: MigrationException
-    #     :exception: ViewException
-    #     """
-    #     tablename = properties.pop('__tablename__')
-    #     if hasattr(base, '__materialized_view__'):
-    #         view = base.__materialized_view__
-    #     elif tablename in self.registry.loaded_views:
-    #         view = self.registry.loaded_views[tablename]
-    #     else:
-    #         if not hasattr(base, 'sqlalchemy_view_declaration'):
-    #             raise ViewException(
-    #                 "%r.'sqlalchemy_view_declaration' is required to "
-    #                 "define the query to apply of the view" % base)
-
-    #         columns = []
-    #         for c in properties['loaded_columns']:
-    #             if c in properties['hybrid_property_columns']:
-    #                 properties[c] = properties.pop(anyblok_column_prefix + c)
-    #                 properties['hybrid_property_columns'].remove(c)
-
-    #             columns.append(properties[c])
-
-    #         selectable = getattr(base, 'sqlalchemy_view_declaration')()
-
-    #         if isinstance(selectable, Query):
-    #             selectable = selectable.subquery()
-
-    #         view = Table(tablename, MetaData(),
-    #                      *columns, *base.define_table_args())
-
-    #         self.registry.loaded_views[tablename] = view
-    #         DropMaterializedView(tablename).execute_at(
-    #             'before-create', self.registry.declarativebase.metadata)
-    #         CreateMaterializedView(tablename, selectable).execute_at(
-    #             'after-create', self.registry.declarativebase.metadata)
-    #         DropMaterializedView(tablename).execute_at(
-    #             'before-drop', self.registry.declarativebase.metadata)
-
-    #     properties['__materialized_view__'] = view
-    #     properties['__table__'] = view
 
     def apply_view(self, base, properties):
         """ Transform the sqlmodel to view model
@@ -138,12 +84,10 @@ class MaterializedViewFactory(ViewFactory):
             for c in selectable.c:
                 c._make_proxy(view)
 
-            DropMaterializedView(tablename).execute_at(
-                'before-create', self.registry.declarativebase.metadata)
-            CreateMaterializedView(tablename, selectable).execute_at(
+            CreateMaterializedView(
+                tablename, selectable, getattr(base, 'with_data', None)
+            ).execute_at(
                 'after-create', self.registry.declarativebase.metadata)
-            DropMaterializedView(tablename).execute_at(
-                'before-drop', self.registry.declarativebase.metadata)
 
         pks = [col for col in properties['loaded_columns']
                if getattr(getattr(base, anyblok_column_prefix + col),

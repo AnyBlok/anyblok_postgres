@@ -10,9 +10,11 @@ from anyblok_postgres.materialized_view import MaterializedViewFactory
 from anyblok.model.exceptions import ViewException
 from anyblok import Declarations
 from sqlalchemy.sql import select, expression, union
-from sqlalchemy.exc import ProgrammingError
+from sqlalchemy.exc import ProgrammingError, OperationalError
 from anyblok.column import Integer, String
 from anyblok.relationship import Many2One
+from anyblok.config import get_url
+from sqlalchemy import create_engine
 
 register = Declarations.register
 Model = Declarations.Model
@@ -34,6 +36,68 @@ def simple_view():
 
     @register(Model, factory=MaterializedViewFactory)
     class TestView:
+        code = String(primary_key=True)
+        val1 = Integer()
+        val2 = Integer()
+
+        @classmethod
+        def sqlalchemy_view_declaration(cls):
+            T1 = cls.registry.T1
+            T2 = cls.registry.T2
+            query = select([T1.code.label('code'),
+                            T1.val.label('val1'),
+                            T2.val.label('val2')])
+            return query.where(T1.code == T2.code)
+
+
+def simple_view_with_no_data():
+
+    @register(Model)
+    class T1:
+        id = Integer(primary_key=True)
+        code = String()
+        val = Integer()
+
+    @register(Model)
+    class T2:
+        id = Integer(primary_key=True)
+        code = String()
+        val = Integer()
+
+    @register(Model, factory=MaterializedViewFactory)
+    class TestView:
+        with_data = False
+        code = String(primary_key=True)
+        val1 = Integer()
+        val2 = Integer()
+
+        @classmethod
+        def sqlalchemy_view_declaration(cls):
+            T1 = cls.registry.T1
+            T2 = cls.registry.T2
+            query = select([T1.code.label('code'),
+                            T1.val.label('val1'),
+                            T2.val.label('val2')])
+            return query.where(T1.code == T2.code)
+
+
+def simple_view_with_data():
+
+    @register(Model)
+    class T1:
+        id = Integer(primary_key=True)
+        code = String()
+        val = Integer()
+
+    @register(Model)
+    class T2:
+        id = Integer(primary_key=True)
+        code = String()
+        val = Integer()
+
+    @register(Model, factory=MaterializedViewFactory)
+    class TestView:
+        with_data = True
         code = String(primary_key=True)
         val1 = Integer()
         val2 = Integer()
@@ -341,6 +405,15 @@ def simple_view_without_view_declaration():
 
 
 class TestView(DBTestCase):
+    conn = None
+
+    def tearDown(self):
+        super(TestView, self).tearDown()
+        if self.conn:
+            self.conn.execute('drop table if exists t1')
+            self.conn.execute('drop table if exists t2')
+            self.conn.close()
+            self.conn = None
 
     def test_view_has_a_mapper(self):
         registry = self.init_registry(simple_view)
@@ -369,6 +442,47 @@ class TestView(DBTestCase):
         self.assertIsNotNone(v3)
         self.assertEqual(v3.val1, 5)
         self.assertEqual(v3.val2, 6)
+
+    def create_data_before(self):
+        self.conn = conn = create_engine(get_url()).connect()
+        conn.execute(
+            '''create table t1 (
+                id integer CONSTRAINT pk_t1 PRIMARY KEY,
+                code varchar(64),
+                val integer
+            )''')
+        conn.execute(
+            '''create table t2 (
+                id integer CONSTRAINT pk_t2 PRIMARY KEY,
+                code varchar(64),
+                val integer
+            )''')
+        conn.execute(
+            "insert into t1 (id, code, val) values (1, 'test1', 1)")
+        conn.execute(
+            "insert into t2 (id, code, val) values (2, 'test1', 2)")
+        conn.execute(
+            "insert into t1 (id, code, val) values (3, 'test2', 3)")
+        conn.execute(
+            "insert into t2 (id, code, val) values (4, 'test2', 4)")
+
+    def test_simple_view_with_no_data(self):
+        self.create_data_before()
+        registry = self.init_registry(simple_view_with_no_data)
+        TestView = registry.TestView
+        with self.assertRaises(OperationalError):
+            TestView.query().filter(TestView.code == 'test1').first()
+
+    def test_simple_view_with_data(self):
+        self.create_data_before()
+        registry = self.init_registry(simple_view_with_data)
+        TestView = registry.TestView
+        v1 = TestView.query().filter(TestView.code == 'test1').first()
+        v2 = TestView.query().filter(TestView.code == 'test2').first()
+        self.assertEqual(v1.val1, 1)
+        self.assertEqual(v1.val2, 2)
+        self.assertEqual(v2.val1, 3)
+        self.assertEqual(v2.val2, 4)
 
     def test_view_with_relationship(self):
         registry = self.init_registry(view_with_relationship)
