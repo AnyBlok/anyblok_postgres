@@ -4,6 +4,8 @@ dist
 build
 doc/_build
 venv
+.coverage
+htmlcov
 
 .installed.cfg
 *.egg-info
