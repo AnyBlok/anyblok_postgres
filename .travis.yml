@@ -1,10 +1,6 @@
 language: python
 dist: xenial
 sudo: false
-addons:
-    matrix:
-        - postgresql: "9.6"
-        - postgresql: "10"
 
 python:
   - "3.4"
@@ -27,6 +23,16 @@ matrix:
   include:
       - python: "pypy3.5"
         env: ANYBLOK_DATABASE_DRIVER=postgresql+psycopg2cffi
+        addons:
+            postgresql: "9.6"
+      - python: "pypy3.5"
+        env: ANYBLOK_DATABASE_DRIVER=postgresql+psycopg2cffi
+        addons:
+            postgresql: "10"
+      - addons:
+            postgresql: "9.6"
+      - addons:
+            postgresql: "10"
       
   allow_failures:
       - python: "nightly"
