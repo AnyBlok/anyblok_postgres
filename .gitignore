@@ -3,6 +3,7 @@ syntax: glob
 dist
 build
 doc/_build
+venv
 
 .installed.cfg
 *.egg-info

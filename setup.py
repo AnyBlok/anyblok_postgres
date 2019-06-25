@@ -24,7 +24,7 @@ with open(
 
 requirements = [
     'anyblok',
-    'psycopg2',
+    'psycopg2-binary',
 ]
 
 setup(
@@ -50,7 +50,8 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
     test_suite='tests',
-    tests_require=requirements + ['nose'],
+    tests_require=requirements + ['pytest'],
 )
