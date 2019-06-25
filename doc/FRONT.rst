@@ -57,7 +57,7 @@ Run the test with ``nose``::
 Dependencies
 ------------
 
-AnyBlok / Postgres works with **Python 3.3** and later. The install process will
+AnyBlok / Postgres works with **Python 3.4** and later. The install process will
 ensure that `AnyBlok <http://doc.anyblok.org>`_ is installed, in addition to other 
 dependencies. The latest version of them is strongly recommended.
 
@@ -72,10 +72,16 @@ Contributors
 `Anybox <http://anybox.fr>`_ team:
 
 * Jean-Sébastien Suzanne
+* Georges Racinet
 
 `Sensee <http://sensee.com>`_ team:
 
 * Franck Bret
+* Jean-Sébastien Suzanne
+
+`Octobus <https://octobus.net/>`_ team:
+
+* Georges Racinet
 
 Bugs
 ----
