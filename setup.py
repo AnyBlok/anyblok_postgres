@@ -24,7 +24,6 @@ with open(
 
 requirements = [
     'anyblok',
-    'psycopg2-binary',
 ]
 
 setup(
