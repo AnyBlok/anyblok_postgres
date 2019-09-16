@@ -13,8 +13,8 @@
 CHANGELOG
 =========
 
-0.2.1
------
+0.2.1 (2019-09-16)
+------------------
 
 * Removed **python 3.4** capability
 * Removed extra dependencies, let at the user, the choice of the driver to use
