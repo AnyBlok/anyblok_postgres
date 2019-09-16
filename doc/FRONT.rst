@@ -57,7 +57,7 @@ Run the test with ``nose``::
 Dependencies
 ------------
 
-AnyBlok / Postgres works with **Python 3.4** and later. The install process will
+AnyBlok / Postgres works with **Python 3.5** and later. The install process will
 ensure that `AnyBlok <http://doc.anyblok.org>`_ is installed, in addition to other 
 dependencies. The latest version of them is strongly recommended.
 
