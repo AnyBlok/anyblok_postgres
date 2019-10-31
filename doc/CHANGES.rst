@@ -13,6 +13,11 @@
 CHANGELOG
 =========
 
+0.2.2 (2019-10-31)
+------------------
+
+* Fixed, the dependencies of pyscopg is removed
+
 0.2.1 (2019-09-16)
 ------------------
 
