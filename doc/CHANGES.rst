@@ -18,6 +18,10 @@ CHANGELOG
 
 * Adapted to **AnyBlok >= 1.1**
 
+0.2.2 (2021-07-11)
+------------------
+
+* Freezed version of **AnyBlok < 1.1.0**
 
 0.2.2 (2019-10-31)
 ------------------
