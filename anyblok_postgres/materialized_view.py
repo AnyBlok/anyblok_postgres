@@ -82,7 +82,7 @@ class MaterializedViewFactory(ViewFactory):
             if isinstance(selectable, Query):
                 selectable = selectable.subquery()
 
-            for c in selectable.c:
+            for c in selectable.subquery().columns:
                 col = c._make_proxy(view)[1]
                 view._columns.replace(col)
 
