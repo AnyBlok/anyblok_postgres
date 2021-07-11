@@ -41,11 +41,11 @@ class Refresh:
 
     @classmethod
     def refresh_materialized_view(cls, concurrently=False):
-        lnft = cls.registry.loaded_namespaces_first_step
+        lnft = cls.anyblok.loaded_namespaces_first_step
         tablename = lnft[cls.__registry_name__]['__tablename__']
-        cls.registry.flush()
+        cls.anyblok.flush()
         _con = 'CONCURRENTLY ' if concurrently else ''
-        cls.registry.execute('REFRESH MATERIALIZED VIEW ' + _con + tablename)
+        cls.anyblok.execute('REFRESH MATERIALIZED VIEW ' + _con + tablename)
 
 
 class MaterializedViewFactory(ViewFactory):
