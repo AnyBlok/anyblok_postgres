@@ -10,7 +10,8 @@ from anyblok.model.exceptions import ViewException
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.schema import DDLElement
 from sqlalchemy.sql import table
-from sqlalchemy.orm import Query, mapper
+from sqlalchemy import event
+from sqlalchemy.orm import Query
 from anyblok.common import anyblok_column_prefix
 
 
@@ -40,11 +41,11 @@ class Refresh:
 
     @classmethod
     def refresh_materialized_view(cls, concurrently=False):
-        lnft = cls.registry.loaded_namespaces_first_step
+        lnft = cls.anyblok.loaded_namespaces_first_step
         tablename = lnft[cls.__registry_name__]['__tablename__']
-        cls.registry.flush()
+        cls.anyblok.flush()
         _con = 'CONCURRENTLY ' if concurrently else ''
-        cls.registry.execute('REFRESH MATERIALIZED VIEW ' + _con + tablename)
+        cls.anyblok.execute('REFRESH MATERIALIZED VIEW ' + _con + tablename)
 
 
 class MaterializedViewFactory(ViewFactory):
@@ -81,13 +82,13 @@ class MaterializedViewFactory(ViewFactory):
             if isinstance(selectable, Query):
                 selectable = selectable.subquery()
 
-            for c in selectable.c:
-                c._make_proxy(view)
+            for c in selectable.subquery().columns:
+                col = c._make_proxy(view)[1]
+                view._columns.replace(col)
 
-            CreateMaterializedView(
-                tablename, selectable, getattr(base, 'with_data', None)
-            ).execute_at(
-                'after-create', self.registry.declarativebase.metadata)
+            metadata = self.registry.declarativebase.metadata
+            event.listen(metadata, 'after_create', CreateMaterializedView(
+                view, selectable, getattr(base, 'with_data', None)))
 
         pks = [col for col in properties['loaded_columns']
                if getattr(getattr(base, anyblok_column_prefix + col),
@@ -98,9 +99,7 @@ class MaterializedViewFactory(ViewFactory):
                 "%r have any primary key defined" % base)
 
         pks = [getattr(view.c, x) for x in pks]
-
         mapper_properties = self.get_mapper_properties(base, view, properties)
-        setattr(base, '__view__', view)
-        __mapper__ = mapper(
+        base.anyblok.declarativebase.registry.map_imperatively(
             base, view, primary_key=pks, properties=mapper_properties)
-        setattr(base, '__mapper__', __mapper__)
+        setattr(base, '__view__', view)

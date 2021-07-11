@@ -4,5 +4,8 @@ ipython
 flake8
 coverage
 pysqlite3
+pytest
+pytest-cov
+coveralls
 psycopg2
 -e .

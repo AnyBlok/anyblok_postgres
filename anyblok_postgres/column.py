@@ -179,7 +179,7 @@ class LargeObject(Column):
         def setter_column(model_self, value):
             action_todos = set()
             if fieldname in model_self.loaded_columns:
-                action_todos = model_self.registry.expire_attributes.get(
+                action_todos = model_self.anyblok.expire_attributes.get(
                     model_self.__registry_name__, {}).get(fieldname, set())
 
             self.expire_related_attribute(model_self, action_todos)
@@ -194,12 +194,12 @@ class LargeObject(Column):
                 where_clause = and_(*where_clause)
 
             query = query.where(where_clause)
-            oldvalue = model_self.registry.execute(query).fetchone()
+            oldvalue = model_self.anyblok.execute(query).fetchone()
             if oldvalue:
                 oldvalue = oldvalue[0]
 
             value = self.setter_format_value(
-                value, oldvalue, model_self.registry)
+                value, oldvalue, model_self.anyblok)
             res = setattr(model_self, attr_name, value)
             self.expire_related_attribute(model_self, action_todos)
             return res
@@ -235,7 +235,7 @@ class LargeObject(Column):
         def getter_column(model_self):
             return self.getter_format_value(
                 getattr(model_self, attr_name),
-                model_self.registry
+                model_self.anyblok
             )
 
         return getter_column
