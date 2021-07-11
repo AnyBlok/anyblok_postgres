@@ -24,7 +24,7 @@ with open(
     CHANGES = change.read()
 
 requirements = [
-    'anyblok >= 1.2.0',
+    'anyblok >= 1.1.0',
 ]
 
 setup(
