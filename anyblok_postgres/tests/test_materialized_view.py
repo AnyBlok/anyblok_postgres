@@ -11,7 +11,7 @@ from anyblok_postgres.materialized_view import MaterializedViewFactory
 from anyblok.model.exceptions import ViewException
 from anyblok import Declarations
 from sqlalchemy.sql import select, expression, union
-from sqlalchemy.exc import ProgrammingError, OperationalError
+from sqlalchemy.exc import OperationalError
 from anyblok.column import Integer, String
 from anyblok.relationship import Many2One
 from anyblok.config import get_url
@@ -99,8 +99,9 @@ class TestSimpleView:
     def test_view_update_method(self, registry_simple_view):
         registry = registry_simple_view
         registry.TestView.refresh_materialized_view()
-        with pytest.raises(ProgrammingError):
-            registry.TestView.query().update({'val2': 3})
+        with pytest.raises(AttributeError):
+            registry.TestView.execute_sql_statement(
+                registry.TestView.update_sql_statement())
 
     def test_view_delete_method(self, registry_simple_view):
         registry = registry_simple_view
